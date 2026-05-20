@@ -1,22 +1,17 @@
-import { GoogleGenerativeAI } from 'npm:@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextResponse } from 'next/server';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+export const runtime = 'nodejs';
+export const maxDuration = 60;
 
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
+export async function POST(req: Request) {
   try {
     const { memo } = await req.json();
 
-    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY')!);
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
-      model: Deno.env.get('GEMINI_MODEL') ?? 'gemini-2.5-pro',
-      tools: [{ googleSearch: {} }],
+      model: process.env.GEMINI_MODEL ?? 'gemini-2.5-pro',
+      tools: [{ googleSearch: {} } as never],
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 3000,
@@ -60,13 +55,8 @@ JSON形式で以下の構造で出力してください:
     const result = await model.generateContent(prompt);
     const ideas = JSON.parse(result.response.text()).ideas;
 
-    return new Response(JSON.stringify({ ideas }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ ideas });
   } catch (error) {
-    return new Response(JSON.stringify({ error: String(error) }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
-});
+}
