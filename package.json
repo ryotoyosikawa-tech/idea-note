@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
+    "@google-cloud/vertexai": "^1.12.0",
     "@neondatabase/serverless": "^1.1.0",
     "@stackframe/stack": "^2.8.89",
     "next": "16.2.6",

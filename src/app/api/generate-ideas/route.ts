@@ -1,22 +1,44 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { VertexAI } from '@google-cloud/vertexai';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+const ALLOWED_MODELS = [
+  'gemini-2.5-pro',
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+] as const;
+type ModelId = (typeof ALLOWED_MODELS)[number];
+
+function resolveModel(requested?: string): ModelId {
+  if (requested && (ALLOWED_MODELS as readonly string[]).includes(requested)) {
+    return requested as ModelId;
+  }
+  const envModel = process.env.GEMINI_MODEL;
+  if (envModel && (ALLOWED_MODELS as readonly string[]).includes(envModel)) {
+    return envModel as ModelId;
+  }
+  return 'gemini-2.5-flash';
+}
+
 export async function POST(req: Request) {
   try {
-    const { memo } = await req.json();
+    const { memo, model: requestedModel } = await req.json();
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({
-      model: process.env.GEMINI_MODEL ?? 'gemini-2.5-pro',
-      tools: [{ googleSearch: {} } as never],
+    const vertexAI = new VertexAI({
+      project: process.env.GOOGLE_CLOUD_PROJECT ?? 'tiktok-auto-test-489700',
+      location: process.env.GOOGLE_CLOUD_LOCATION ?? 'us-central1',
+    });
+
+    const model = vertexAI.getGenerativeModel({
+      model: resolveModel(requestedModel),
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 3000,
         responseMimeType: 'application/json',
       },
+      tools: [{ googleSearch: {} } as never],
     });
 
     const prompt = `あなたは熟練の事業コンサルタントです。
@@ -53,7 +75,8 @@ JSON形式で以下の構造で出力してください:
 - 日本国内のサービスを中心に考えるが、海外事例も適宜参照`;
 
     const result = await model.generateContent(prompt);
-    const ideas = JSON.parse(result.response.text()).ideas;
+    const text = result.response.candidates?.[0]?.content?.parts?.[0]?.text ?? '{"ideas":[]}';
+    const ideas = JSON.parse(text).ideas;
 
     return NextResponse.json({ ideas });
   } catch (error) {
