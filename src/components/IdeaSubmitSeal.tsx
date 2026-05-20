@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { WaxSeal } from './WaxSeal';
 import { generateIdeasForMemo } from '@/app/actions/ideas';
@@ -30,7 +31,7 @@ export function IdeaSubmitSeal({ memoId, hasIdeas }: Props) {
   if (hasIdeas && !pending) {
     return (
       <div className="flex flex-col items-center gap-2">
-        <WaxSeal size="lg" onClick={() => router.push(`/memo/${memoId}/ideas`)}>
+        <WaxSeal size="lg" variant="laurel" onClick={() => router.push(`/memo/${memoId}/ideas`)}>
           <span className="text-base">アイデア</span>
           <span className="text-base">を見る</span>
         </WaxSeal>
@@ -46,20 +47,39 @@ export function IdeaSubmitSeal({ memoId, hasIdeas }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <WaxSeal size="lg" disabled={pending} onClick={trigger}>
-        {pending ? (
-          <>
-            <span className="text-sm">昇華中…</span>
-            <span className="text-[10px] tracking-widest mt-0.5">AI 生成</span>
-          </>
-        ) : (
-          <>
-            <span className="text-base">アイデア</span>
-            <span className="text-base">昇華</span>
-          </>
-        )}
-      </WaxSeal>
+    <div className="flex flex-col items-center gap-3">
+      {pending ? (
+        <div className="w-40 h-40 sm:w-44 sm:h-44 flex items-center justify-center">
+          <div className="relative w-32 h-32 animate-pulse">
+            <Image
+              src="/assets/stamps/01_idea_shouka.png"
+              alt="アイデア昇華中"
+              fill
+              className="object-contain opacity-60"
+            />
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={trigger}
+          disabled={pending}
+          className="tappable relative w-40 h-40 sm:w-44 sm:h-44 hover:scale-105 transition-transform duration-200 disabled:opacity-50"
+          aria-label="アイデア昇華"
+        >
+          <Image
+            src="/assets/stamps/01_idea_shouka.png"
+            alt="アイデア昇華"
+            fill
+            className="object-contain drop-shadow-[0_4px_8px_rgba(139,0,0,0.35)]"
+          />
+        </button>
+      )}
+      {pending && (
+        <p className="text-[#8B0000] text-sm font-cormorant italic tracking-widest">
+          AI が思考を昇華しています…
+        </p>
+      )}
       {error && (
         <p className="text-[#8B0000] text-xs max-w-xs text-center">{error}</p>
       )}

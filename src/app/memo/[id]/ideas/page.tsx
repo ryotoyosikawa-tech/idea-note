@@ -53,11 +53,7 @@ export default async function IdeaResultPage({
 
       <ExpandableMemo tag={memo.tag} content={memo.content} />
 
-      <div className="my-5 text-center">
-        <span className="font-cormorant italic text-sm text-[#6B4E37] tracking-widest">
-          ✦ {latestIdeas.length}案 生成しました ✦
-        </span>
-      </div>
+      <ThickDivider>{`${latestIdeas.length}案 生成しました`}</ThickDivider>
 
       {/* カテゴリごとに表示 */}
       {CATEGORIES.map((cat) => {

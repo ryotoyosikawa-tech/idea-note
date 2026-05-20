@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 
 type Props = {
@@ -5,15 +6,25 @@ type Props = {
   className?: string;
 };
 
+/** botanical_frame の縁を上下に配置した枠 */
 export function OrnamentFrame({ children, className = '' }: Props) {
   return (
     <div className={`relative ${className}`}>
-      {/* Decorative corners */}
-      <div className="pointer-events-none absolute -top-2 -left-2 text-[#7A512F]/50 text-xl select-none">❦</div>
-      <div className="pointer-events-none absolute -top-2 -right-2 text-[#7A512F]/50 text-xl select-none">❦</div>
-      <div className="pointer-events-none absolute -bottom-2 -left-2 text-[#7A512F]/50 text-xl select-none">❦</div>
-      <div className="pointer-events-none absolute -bottom-2 -right-2 text-[#7A512F]/50 text-xl select-none">❦</div>
-      {children}
+      <Image
+        src="/assets/icons/20_botanical_frame.png"
+        alt=""
+        width={680}
+        height={40}
+        className="w-full h-auto opacity-90"
+      />
+      <div className="px-4 py-4">{children}</div>
+      <Image
+        src="/assets/icons/20_botanical_frame.png"
+        alt=""
+        width={680}
+        height={40}
+        className="w-full h-auto opacity-90 scale-y-[-1]"
+      />
     </div>
   );
 }
