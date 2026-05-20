@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { sql } from '@/lib/db';
 import { getCurrentUserId } from '@/lib/user';
 import { StarRating } from '@/components/StarRating';
+import { PageHeader } from '@/components/PageHeader';
 import type { Idea, IdeaCategory } from '@/types';
 
 const CATEGORY_LABEL: Record<IdeaCategory, string> = {
@@ -26,23 +27,22 @@ export default async function AllIdeasPage() {
   ` as Row[];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-6 pb-12">
-      <div className="mb-3">
-        <Link href="/ideas" className="text-[#6B4E37] hover:text-[#8B0000] text-sm">
-          ← 気になるアイデアへ戻る
+    <div className="mx-auto max-w-4xl px-5 sm:px-8 pt-6 pb-12">
+      <div className="mb-4">
+        <Link href="/ideas" className="text-[#6B4E37] hover:text-[#8B0000] text-sm font-cormorant italic tracking-wider">
+          ← Back to Cultivation
         </Link>
       </div>
 
-      <header className="text-center mb-5">
-        <h1 className="font-bold text-xl sm:text-2xl text-[#2C1810] ink-stroke">
-          すべてのアイデア
-          <span className="font-cormorant italic text-[#8B0000] ml-2">({rows.length}件)</span>
-        </h1>
-      </header>
+      <PageHeader
+        english="All Ideas"
+        title="すべてのアイデア"
+        subtitle={`${rows.length} total`}
+      />
 
       {rows.length === 0 ? (
-        <div className="parchment-card rounded-md p-8 text-center">
-          <p className="text-[#3A2818]/80">まだアイデアがありません</p>
+        <div className="parchment-card rounded-lg p-10 text-center">
+          <p className="text-[#3A2818]">まだアイデアがありません</p>
         </div>
       ) : (
         <ul className="space-y-2">
@@ -50,19 +50,17 @@ export default async function AllIdeasPage() {
             <li key={idea.id}>
               <Link
                 href={`/memo/${idea.memo_id}/ideas`}
-                className="parchment-card rounded-md p-3 block tappable"
+                className="parchment-card rounded-md p-3 sm:p-4 block tappable"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#7A512F]/15 text-[#3A2818] font-bold">
-                        {CATEGORY_LABEL[idea.category]}
-                      </span>
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="hashtag-chip">{CATEGORY_LABEL[idea.category]}</span>
                       {idea.status === 'meh' && (
-                        <span className="text-[10px] text-[#6B4E37]/70">微妙</span>
+                        <span className="text-[10px] text-[#6B4E37]/80 font-bold">微妙</span>
                       )}
                       {idea.status == null && (
-                        <span className="text-[10px] text-[#6B4E37]/70">未評価</span>
+                        <span className="text-[10px] text-[#6B4E37]/80 font-bold">未評価</span>
                       )}
                     </div>
                     <h3 className="font-bold text-sm text-[#2C1810] line-clamp-1">

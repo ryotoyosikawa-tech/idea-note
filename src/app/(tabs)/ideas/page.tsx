@@ -1,7 +1,8 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getInterestedIdeas } from '@/app/actions/ideas';
 import { StarRating } from '@/components/StarRating';
-import { ThickDivider } from '@/components/Divider';
+import { PageHeader } from '@/components/PageHeader';
 import type { IdeaCategory } from '@/types';
 
 const CATEGORY_LABEL: Record<IdeaCategory, string> = {
@@ -31,17 +32,15 @@ export default async function IdeasPage({
   const ideas = await getInterestedIdeas(sort, category);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-6 pb-12">
-      {/* ヘッダー */}
-      <header className="text-center mb-5">
-        <h1 className="font-bold text-xl sm:text-2xl text-[#2C1810] ink-stroke">
-          気になるアイデア
-          <span className="font-cormorant italic text-[#8B0000] ml-2">({ideas.length}件)</span>
-        </h1>
-      </header>
+    <div className="mx-auto max-w-4xl px-5 sm:px-8 pt-8 pb-12">
+      <PageHeader
+        english="Cultivation"
+        title="気になるアイデア"
+        subtitle={`${ideas.length} cultivated ideas`}
+      />
 
       {/* ソートタブ */}
-      <div className="flex gap-1 mb-3 p-1 parchment-deep rounded-md">
+      <div className="flex gap-2 mb-3">
         {([
           ['interest', '気になり度順'],
           ['new', '新しい順'],
@@ -55,11 +54,7 @@ export default async function IdeasPage({
             <Link
               key={key}
               href={`/ideas?${params.toString()}`}
-              className={`flex-1 text-center py-2 rounded text-xs sm:text-sm font-bold transition-all ${
-                active
-                  ? 'bg-[#8B0000]/85 text-[#F5E5C5] shadow-inner'
-                  : 'text-[#6B4E37] hover:bg-[#7A512F]/10'
-              }`}
+              className={`tab-pill flex-1 text-center ${active ? 'active' : ''}`}
             >
               {label}
             </Link>
@@ -68,7 +63,7 @@ export default async function IdeasPage({
       </div>
 
       {/* カテゴリフィルタ */}
-      <div className="flex gap-1.5 mb-5 flex-wrap">
+      <div className="flex gap-1.5 mb-6 flex-wrap">
         {(['all', 'saas', 'product', 'service'] as const).map((c) => {
           const active = category === c;
           const label = c === 'all' ? 'すべて' : CATEGORY_LABEL[c];
@@ -79,11 +74,7 @@ export default async function IdeasPage({
             <Link
               key={c}
               href={`/ideas?${params.toString()}`}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                active
-                  ? 'bg-[#7A512F]/20 text-[#3A2818] border-[#7A512F]'
-                  : 'bg-transparent text-[#6B4E37] border-[#7A512F]/30 hover:border-[#7A512F]/60'
-              }`}
+              className={`chip ${active ? 'active' : ''}`}
             >
               {label}
             </Link>
@@ -100,33 +91,34 @@ export default async function IdeasPage({
             <li key={idea.id}>
               <Link
                 href={`/memo/${idea.memo_id}/ideas`}
-                className="parchment-card rounded-md p-4 sm:p-5 block tappable"
+                className="parchment-card rounded-lg p-4 sm:p-5 block tappable"
               >
                 <div className="flex items-start gap-3">
-                  <span className="font-cormorant italic text-2xl text-[#8B0000] leading-none mt-0.5">
+                  <span className="font-cormorant italic text-3xl text-[#8B0000] leading-none mt-1">
                     {`①②③④⑤⑥⑦⑧⑨⑩`.charAt(idx) || `${idx + 1}`}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <h3 className="font-bold text-sm sm:text-base text-[#2C1810] leading-tight">
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <h3 className="font-bold text-sm sm:text-base text-[#2C1810] leading-snug ink-stroke">
                         {idea.title}
                       </h3>
                       <StarRating count={idea.interest_count} />
                     </div>
                     <div
-                      className="inline-block text-[10px] px-1.5 py-0.5 rounded font-bold mb-1.5"
+                      className="inline-block text-[10px] px-2 py-0.5 rounded font-bold mb-2 border"
                       style={{
                         color: CATEGORY_COLOR[idea.category],
-                        backgroundColor: `${CATEGORY_COLOR[idea.category]}1a`,
+                        backgroundColor: `${CATEGORY_COLOR[idea.category]}12`,
+                        borderColor: `${CATEGORY_COLOR[idea.category]}55`,
                       }}
                     >
                       {CATEGORY_LABEL[idea.category]}
                     </div>
-                    <p className="text-[#3A2818]/80 text-xs sm:text-sm line-clamp-2 leading-relaxed">
+                    <p className="text-[#3A2818]/85 text-xs sm:text-sm line-clamp-2 leading-relaxed">
                       {idea.niche_description}
                     </p>
-                    <p className="text-[#6B4E37] text-[10px] sm:text-xs mt-2 italic">
-                      元メモ:「{idea.source_memo_content.slice(0, 30)}{idea.source_memo_content.length > 30 ? '…' : ''}」
+                    <p className="text-[#6B4E37] text-[10px] sm:text-xs mt-2 italic font-cormorant">
+                      元メモ:「{idea.source_memo_content.slice(0, 40)}{idea.source_memo_content.length > 40 ? '…' : ''}」
                     </p>
                   </div>
                 </div>
@@ -136,15 +128,15 @@ export default async function IdeasPage({
         </ul>
       )}
 
-      <ThickDivider />
-
-      <div className="text-center pt-2">
+      <div className="mt-8 text-center">
         <Link
           href="/ideas/all"
-          className="text-[#6B4E37] hover:text-[#8B0000] text-sm underline font-cormorant italic tracking-widest"
+          className="inline-flex items-center gap-2 text-[#6B4E37] hover:text-[#8B0000] text-sm font-cormorant italic tracking-widest"
         >
-          すべてのアイデアを見る（未評価・微妙も含む）→
+          すべてのアイデアを見る
+          <span>→</span>
         </Link>
+        <div className="text-[10px] text-[#6B4E37]/60 mt-1">未評価・微妙も含む</div>
       </div>
     </div>
   );
@@ -152,12 +144,15 @@ export default async function IdeasPage({
 
 function EmptyState() {
   return (
-    <div className="parchment-card rounded-md p-8 text-center my-4">
-      <div className="text-5xl mb-3 text-[#7A512F]/40">✦</div>
-      <p className="text-[#3A2818]/80 mb-1">気になるアイデアがまだありません</p>
+    <div className="parchment-card rounded-lg p-10 text-center">
+      <Image src="/assets/icons/11_sun.png" alt="" width={64} height={64} className="mx-auto opacity-55 mb-3" />
+      <p className="text-[#3A2818] mb-2 font-bold">気になるアイデアがまだありません</p>
       <p className="text-[#6B4E37] text-sm">
-        メモを書いて「アイデア昇華」→「気になる」を押すと、ここに育成されます。
+        メモ詳細で「アイデア昇華」→ 気になるものに「気になる」を押すと、ここに育成されます。
       </p>
+      <div className="mt-4 font-cormorant italic text-xs text-[#6B4E37]/70 tracking-widest">
+        ─ Cultivate your finest ideas ─
+      </div>
     </div>
   );
 }
