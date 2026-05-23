@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Serif_JP, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { NavShell } from "@/components/NavShell";
+import { AppLock } from "@/components/AppLock";
 
 const notoSerifJP = Noto_Serif_JP({
   variable: "--font-noto-serif-jp",
@@ -32,7 +33,9 @@ export default function RootLayout({
       className={`${notoSerifJP.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <NavShell>{children}</NavShell>
+        <AppLock>
+          <NavShell>{children}</NavShell>
+        </AppLock>
       </body>
     </html>
   );
